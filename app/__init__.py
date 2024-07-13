@@ -25,10 +25,10 @@ def create_app():
     CORS(app)
 
     from .auth_route import auth_blueprint
-    #from .game_route import game_blueprint
+    from .gameroute import game_blueprint
 
     app.register_blueprint(auth_blueprint)#regestaring the login blue print from models.py
-    #app.register_blueprint(game_blueprint)
+    app.register_blueprint(game_blueprint)
 
     return app
 #Imports: Import necessary Flask modules and extensions.

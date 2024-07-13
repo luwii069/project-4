@@ -87,6 +87,7 @@ def login():
         #game=Game(member_id=member_id,board=board,rook_x=rook_x,rook_y=rook_y,knight_x=knight_x,knight_y=knight_y)
         #db.session.add(game)
         #db.session.commit()
+        #idk how to give a game to a player that has not gotten any game i mean a new player must be given a new game that sasa 
 
     return jsonify({'user':user.details(),'token':access_token})
     
