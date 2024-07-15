@@ -1,8 +1,8 @@
-"""finished authentication
+"""initialization of everything
 
-Revision ID: 5aff152f765d
+Revision ID: 504e9005aa7c
 Revises: 
-Create Date: 2024-07-12 03:05:32.842479
+Create Date: 2024-07-15 12:12:02.353420
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5aff152f765d'
+revision = '504e9005aa7c'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,11 +29,10 @@ def upgrade():
     op.create_table('game',
     sa.Column('id', sa.BigInteger(), nullable=False),
     sa.Column('member_id', sa.BigInteger(), nullable=False),
-    sa.Column('board', sa.Text(), nullable=False),
-    sa.Column('knight_x', sa.Integer(), nullable=False),
-    sa.Column('knight_y', sa.Integer(), nullable=False),
-    sa.Column('rook_x', sa.Integer(), nullable=False),
-    sa.Column('rook_y', sa.Integer(), nullable=False),
+    sa.Column('deck', sa.String(), nullable=False),
+    sa.Column('player_hand', sa.String(), nullable=False),
+    sa.Column('computer_hand', sa.String(), nullable=False),
+    sa.Column('tablecard', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['member_id'], ['member.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('member_id')

@@ -1,63 +1,54 @@
-from . import db
+from. import db
 from flask import json
 
 
 class Member(db.Model):
-    __tablename__='member'
+    __tablename__ = 'member'
 
-    id=db.Column(db.BigInteger,primary_key=True)
-    alias=db.Column(db.String(255),nullable=False)
-    email=db.Column(db.String(255),unique=True,nullable=False)
-    password=db.Column(db.String(255),nullable=False)
-    game=db.relationship('Game',backref='member',uselist=False,cascade='all, delete-orphan')
+    id = db.Column(db.BigInteger, primary_key=True)
+    alias = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+
+    # one-to-many track which games belong to which members(player can have multiple games)
+    games = db.relationship('Game', backref='member', lazy=True)
 
     def details(self):
-        return {'id':self.id,'alias':self.alias, 'email':self.email}
-    
+        return {'id': self.id, 'alias': self.alias, 'email': self.email}
+
+class Card(db.Model): # static data for all possible cards
+    __tablename__ = 'card'
+
+    id = db.Column(db.BigInteger, primary_key=True)
+    suit = db.Column(db.String(10), nullable=False)
+    rank = db.Column(db.String(10), nullable=False)
+
+    def __repr__(self):
+        return f"{self.rank} of {self.suit}"
+
 class Game(db.Model):
     __tablename__ = 'game'
+
     id = db.Column(db.BigInteger, primary_key=True)
-    member_id = db.Column(db.BigInteger, db.ForeignKey('member.id', ondelete='CASCADE'), nullable=False, unique=True)
-    deck = db.Column(db.String, nullable=False)
-    player_hand = db.Column(db.String, nullable=False)
-    computer_hand = db.Column(db.String, nullable=False)
-    tablecard = db.Column(db.String, nullable=False)
+    member_id = db.Column(db.BigInteger, db.ForeignKey('member.id', ondelete='CASCADE'), nullable=False)
 
- 
-    class Game:
-     def __init__(self, member_id):
-        self.member_id = member_id
-        self.deck = []
-        self.player_hand = []
-        self.computer_hand = []
-        self.tablecard = []
+#many-to-many relationship(game-card)
+#manage the deck of cards used in the game
+#(tseme allows for easier shuffling)
+    deck = db.relationship('Card', secondary='game_card', backref='games')
 
-     def create_deck(self):
-        suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
-        ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-        
-        new_ranks = ['4', '5', '6', '7', '9', '10']
-        new_suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
-        self.deck = [{'suit': suit, 'rank': rank} for suit in suits for rank in ranks]
-        return self.deck
+#One-to-many(game-game card)  manage player's hand, computer's hand, and table cards
+    player_hand = db.relationship('GameCard', backref='player_game', lazy=True, cascade='all, delete-orphan')
+    computer_hand = db.relationship('GameCard', backref='computer_game', lazy=True, cascade='all, delete-orphan')
+    tablecard = db.relationship('GameCard', backref='table_game', lazy=True, cascade='all, delete-orphan')
+#nb each card displays each instance for player comps and table 
+class GameCard(db.Model):
+    __tablename__ = 'game_card'
 
-     def deal_cards(self, num_cards):
-        if len(self.deck) < num_cards:
-            return None  # Handle case where not enough cards are available
+    game_id = db.Column(db.BigInteger, db.ForeignKey('game.id'), primary_key=True)
+    card_id = db.Column(db.BigInteger, db.ForeignKey('card.id'), primary_key=True)
 
-        # Distribute cards to player_hand
-        self.player_hand.extend(self.deck[:num_cards])
-        del self.deck[:num_cards]
-
-        # Distribute cards to computer_hand
-        self.computer_hand.extend(self.deck[:num_cards])
-        del self.deck[:num_cards]
-
-        # Additional logic for tablecard distribution if needed
-
-        return self.player_hand, self.computer_hand
-    
-
-        #initializes a new game instance with the provided attributes and 
-        #ensures they're stored in a method compatible to databases using 
-        #json serialization
+    #many-to-one relationship with Game, establishing a connection between GameCard and Game
+    game = db.relationship('Game', backref='game_cards')
+    card = db.relationship('Card', backref='game_cards')
+    #establish associations between specific games and specific cards.

@@ -72,23 +72,7 @@ def login():
     ## ACCESS TOKEN
     access_token=create_access_token(identity={"id":user.id,"alias":user.alias,"role":"cats and dogs"},expires_delta=(expires-datetime.utcnow()))
    
-    #if not user.game:
-        #member_id=user.id
-        #board=create_board()
-        #knight_x=init_knight['x']
-        #knight_y=init_knight['y']
-        #rook_x=init_rook['x']
-        #rook_y=init_rook['y']
-        #board[knight_y][knight_x]="BN"
-        #board[rook_y][rook_x]="WR"
-        #print(board)
-        #board=json.dumps(board)
-        #print(board)
-        #game=Game(member_id=member_id,board=board,rook_x=rook_x,rook_y=rook_y,knight_x=knight_x,knight_y=knight_y)
-        #db.session.add(game)
-        #db.session.commit()
-        #idk how to give a game to a player that has not gotten any game i mean a new player must be given a new game that sasa 
-
+    
     return jsonify({'user':user.details(),'token':access_token})
     
       #This Flask blueprint (auth_blueprint) defines two routes (/signup and /login)
